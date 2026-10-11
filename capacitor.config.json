@@ -1,0 +1,9 @@
+{
+  "appId": "com.roohu.airlink",
+  "appName": "AirLink",
+  "webDir": "www",
+  "backgroundColor": "#0d0a14",
+  "android": {
+    "backgroundColor": "#0d0a14"
+  }
+}

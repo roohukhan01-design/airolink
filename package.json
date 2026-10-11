@@ -1,0 +1,14 @@
+{
+  "name": "airlink",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AirLink - share files on local Wi-Fi",
+  "dependencies": {
+    "@capacitor/android": "^6.2.0",
+    "@capacitor/cli": "^6.2.0",
+    "@capacitor/core": "^6.2.0"
+  },
+  "devDependencies": {
+    "@capacitor/assets": "^3.0.5"
+  }
+}

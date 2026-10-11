@@ -1,0 +1,393 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0d0a14">
+<title>AirLink</title>
+<style>
+:root{--bg:#faf6ff;--panel:#ffffff;--ink:#1c1230;--sub:#6e6288;--line:#e5dcf3;--soft:#f3ecfb;--a1:#f59e0b;--a2:#f43f5e;--ok:#16a34a;--bad:#dc2626;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--bg:#0d0a14;--panel:#17121f;--ink:#f4f0ff;--sub:#a79bc0;--line:#2a2238;--soft:#201929;--ok:#4ade80;--bad:#fb7185}}
+:root[data-theme="dark"]{--bg:#0d0a14;--panel:#17121f;--ink:#f4f0ff;--sub:#a79bc0;--line:#2a2238;--soft:#201929;--ok:#4ade80;--bad:#fb7185}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%;margin:0;overflow:hidden}
+body{background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif}
+button,input{font:inherit;color:inherit}button{cursor:pointer;border:0}
+/* splash */
+#splash{position:fixed;inset:0;z-index:80;background:radial-gradient(circle at 50% 40%,#4a1d3a,#0d0a14 70%);display:flex;flex-direction:column;align-items:center;justify-content:center;color:#fff;transition:opacity .6s,transform .6s}
+#splash.hide{opacity:0;transform:scale(1.08);pointer-events:none}
+.sl{width:116px;height:116px;filter:drop-shadow(0 14px 40px #f43f5e88)}
+.sl .bgr{animation:pop .7s cubic-bezier(.2,1.4,.4,1) both;transform-origin:50% 50%}
+.sl .w{opacity:0;animation:wv .5s forwards}.sl .w1{animation-delay:.9s}.sl .w2{animation-delay:.7s}.sl .w3{animation-delay:.5s}.sl .dt{opacity:0;animation:wv .4s .35s forwards}
+.sn{margin-top:22px;font-size:34px;font-weight:800;letter-spacing:1px;background:linear-gradient(90deg,#fde68a,#fda4af);-webkit-background-clip:text;background-clip:text;color:transparent;animation:up .7s 1s both}
+.st{margin-top:6px;font-size:12px;color:#a79bc0;letter-spacing:3px;animation:up .7s 1.2s both}
+.by{margin-top:14px;font-size:12px;color:#7b6f94;letter-spacing:1px;animation:up .7s 1.4s both}
+.sb{margin-top:26px;width:150px;height:4px;border-radius:9px;background:#ffffff1c;overflow:hidden}
+.sb i{display:block;height:100%;width:0;background:linear-gradient(90deg,#f59e0b,#f43f5e);animation:fill 1.7s .2s forwards}
+@keyframes pop{from{transform:scale(.4);opacity:0}to{transform:none;opacity:1}}
+@keyframes wv{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes up{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+@keyframes fill{to{width:100%}}
+/* layout */
+.app{height:100%;display:flex;flex-direction:column;position:relative;overflow:hidden}
+.glow{position:absolute;border-radius:50%;filter:blur(80px);opacity:.25;pointer-events:none;animation:float 14s ease-in-out infinite}
+.g1{width:260px;height:260px;background:var(--a1);top:-100px;left:-80px}.g2{width:220px;height:220px;background:var(--a2);top:60px;right:-100px;animation-delay:-6s}
+@keyframes float{50%{transform:translate(30px,30px) scale(1.15)}}
+header{position:relative;z-index:2;display:flex;align-items:center;gap:10px;padding:14px 16px 8px}
+header svg{width:38px;height:38px;flex:none}
+header b{font-size:21px;font-weight:800;letter-spacing:.4px;background:linear-gradient(90deg,var(--a1),var(--a2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.pill{margin-left:auto;font-size:12px;font-weight:700;padding:7px 13px;border-radius:99px;background:var(--soft);color:var(--sub);transition:all .3s}
+.pill.on{background:#4ade8022;color:var(--ok)}
+#view{flex:1;min-height:0;overflow-y:auto;position:relative;z-index:1;padding:6px 14px 40px;-webkit-overflow-scrolling:touch}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:16px;margin:12px 0;animation:vin .4s both}
+@keyframes vin{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.card h3{margin:0 0 6px;font-size:13px;letter-spacing:1px;text-transform:uppercase;color:var(--sub)}
+.note{font-size:13px;color:var(--sub);line-height:1.5;margin-top:6px}
+.banner{background:#f59e0b22;color:var(--a1);border:1px solid #f59e0b55;border-radius:14px;padding:10px 12px;font-size:13px;margin:10px 0;line-height:1.4}
+/* hero */
+.hero{text-align:center;padding:22px 16px;background:linear-gradient(160deg,#1f1230,#2b1230 60%,#3b1228);color:#fff;border:0;position:relative;overflow:hidden;box-shadow:0 16px 40px #f43f5e33}
+.radar{position:relative;width:132px;height:132px;margin:2px auto 12px;display:grid;place-items:center}
+.radar i{position:absolute;inset:0;border-radius:50%;border:2px solid #f59e0b;opacity:0}
+.hero.on .radar i{animation:rad 2.8s ease-out infinite}.hero.on .radar i:nth-child(2){animation-delay:.9s}.hero.on .radar i:nth-child(3){animation-delay:1.8s}
+@keyframes rad{from{transform:scale(.45);opacity:.9}to{transform:scale(1.25);opacity:0}}
+.pw{position:relative;width:84px;height:84px;border-radius:50%;background:linear-gradient(135deg,var(--a1),var(--a2));display:grid;place-items:center;box-shadow:0 10px 34px #f43f5e77;transition:transform .2s}
+.pw:active{transform:scale(.92)}.pw svg{width:38px;height:38px}
+.hero h2{margin:0;font-size:22px}.hero p{margin:6px 0 0;color:#cdbfe0;font-size:14px;line-height:1.45}
+.lk{margin:14px 0 4px;background:#ffffff14;border-radius:16px;padding:12px}
+.lk small{display:block;color:#cdbfe0;font-size:12px;letter-spacing:1px;text-transform:uppercase}
+.lk .u{font:700 18px ui-monospace,Menlo,Consolas,monospace;margin:4px 0;word-break:break-all;-webkit-user-select:text;user-select:text}
+.lk .c{font:800 34px ui-monospace,Menlo,monospace;letter-spacing:8px;margin-top:2px;background:linear-gradient(90deg,#fde68a,#fda4af);-webkit-background-clip:text;background-clip:text;color:transparent}
+.ips{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:8px}.ips button{background:#ffffff1a;color:#fff;padding:5px 11px;border-radius:99px;font-size:12px}.ips button.on{background:#fff;color:#2b1230;font-weight:700}
+.btn{padding:13px 16px;border-radius:14px;background:var(--soft);color:var(--ink);font-weight:700;transition:transform .15s}.btn:active{transform:scale(.95)}
+.btn.pri{background:linear-gradient(135deg,var(--a1),var(--a2));color:#fff;box-shadow:0 8px 22px #f43f5e44}
+.btn.dng{background:#ef444422;color:var(--bad)}.btn.big{width:100%;margin-top:10px;font-size:16px;padding:15px}
+.hero .btn{background:#ffffff1c;color:#fff}.hero .btn.pri{background:linear-gradient(135deg,var(--a1),var(--a2))}
+.btns{display:flex;gap:8px;margin-top:10px;flex-wrap:wrap}.btns .btn{flex:1;min-width:120px}
+a.btn{text-decoration:none;display:inline-block;text-align:center}
+/* lists */
+.row{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line)}.row:last-child{border-bottom:0}
+.ic{width:40px;height:40px;border-radius:12px;background:var(--soft);display:grid;place-items:center;flex:none;font-size:18px}
+.nm{flex:1;min-width:0}.nm b{display:block;font-size:14.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.nm small{color:var(--sub);font-size:12.5px}
+.bar{height:5px;border-radius:9px;background:var(--line);margin-top:6px;overflow:hidden}.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--a1),var(--a2));transition:width .25s}
+.x{background:#ef444422;color:var(--bad);border-radius:10px;width:32px;height:32px;flex:none}
+.tag{font-size:12px;font-weight:700;color:var(--sub);white-space:nowrap}.tag.ok{color:var(--ok)}
+.empty{text-align:center;color:var(--sub);padding:14px 6px;font-size:14px;line-height:1.5}
+.steps{margin:6px 0 0;padding-left:20px;font-size:14px;line-height:1.7}
+/* toast */
+#toast{position:fixed;left:50%;bottom:calc(30px + env(safe-area-inset-bottom,0px));transform:translate(-50%,20px);background:#2a1a3a;color:#fff;padding:11px 18px;border-radius:99px;font-size:14px;opacity:0;pointer-events:none;transition:all .35s cubic-bezier(.3,1.3,.4,1);z-index:90;box-shadow:0 10px 30px #0006;max-width:90%;text-align:center}
+#toast.show{opacity:1;transform:translate(-50%,0)}
+/* about */
+.about{position:relative;border-radius:24px;padding:2px;overflow:hidden;margin:12px 0;box-shadow:0 14px 40px #f43f5e33}
+.about:before{content:"";position:absolute;inset:-70%;background:conic-gradient(from 0deg,#f59e0b,#f43f5e,#8b5cf6,#14b8a6,#f59e0b);animation:spin 7s linear infinite}
+.about .in{position:relative;background:var(--panel);border-radius:22px;padding:18px;overflow:hidden}
+#neural{position:absolute;inset:0;width:100%;height:100%;opacity:.55;pointer-events:none}.about .in>*:not(canvas){position:relative}
+.ab2{display:flex;align-items:center;gap:16px}
+.orb{width:74px;height:74px;flex:none;border-radius:50%;display:grid;place-items:center;font-size:30px;font-weight:800;color:#fff;background:radial-gradient(circle at 30% 28%,#fff,#fde68a 22%,#f43f5e 62%,#9d174d);box-shadow:0 0 34px #f43f5e99;animation:breathe 3.2s ease-in-out infinite;position:relative}
+.orb:before,.orb:after{content:"";position:absolute;inset:0;border-radius:50%;border:2px solid #f43f5e;animation:ring 2.6s ease-out infinite}.orb:after{animation-delay:1.3s}
+.sys{font:11px ui-monospace,Menlo,monospace;letter-spacing:2px;color:var(--sub)}
+.shim{font-size:32px;font-weight:800;line-height:1.1;background:linear-gradient(90deg,#f59e0b,#f43f5e,#8b5cf6,#f59e0b);background-size:300% 100%;-webkit-background-clip:text;background-clip:text;color:transparent;animation:shim 4s linear infinite}
+.type{display:inline-block;overflow:hidden;white-space:nowrap;border-right:2px solid var(--a2);width:0;font:12.5px ui-monospace,Menlo,monospace;color:var(--ink);animation:typing 2.4s steps(24) .4s forwards,blink .8s step-end infinite}
+.stat{display:flex;align-items:center;gap:9px;font:12px ui-monospace,Menlo,monospace;padding:5px 0;color:var(--sub)}
+.stat i{width:8px;height:8px;border-radius:50%;background:#22c55e;box-shadow:0 0 10px #22c55e;animation:pulse2 2s infinite}.stat i.off{background:#94a3b8;box-shadow:none;animation:none}
+.stat b{margin-left:auto;color:var(--ink);letter-spacing:1px;font-weight:600}
+.sp{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;margin-top:8px;border-top:1px solid var(--line)}.sp small{color:var(--sub)}
+@keyframes spin{to{transform:rotate(360deg)}}@keyframes breathe{50%{transform:scale(1.07)}}
+@keyframes ring{from{transform:scale(1);opacity:.7}to{transform:scale(1.6);opacity:0}}
+@keyframes shim{to{background-position:300% 0}}@keyframes typing{to{width:24ch}}@keyframes blink{50%{border-color:transparent}}@keyframes pulse2{50%{opacity:.35}}
+.abt{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:18px;margin:12px 0}
+.abt .hd{display:flex;align-items:center;gap:14px;padding-bottom:12px}
+.abt .av{width:56px;height:56px;border-radius:16px;background:linear-gradient(135deg,var(--a1),var(--a2));color:#fff;display:grid;place-items:center;font-size:24px;font-weight:700;flex:none}
+.abt .anm{font-size:19px;font-weight:700}.abt .arl{font-size:13px;color:var(--sub);margin-top:2px}
+.abt .ar{display:flex;justify-content:space-between;align-items:flex-start;gap:14px;padding:11px 0;border-top:1px solid var(--line);font-size:14px}
+.abt .ar span{color:var(--sub);flex:none}.abt .ar b{font-weight:600;text-align:right;word-break:break-word}
+.abt .aft{margin-top:14px;font-size:12px;color:var(--sub);text-align:center;line-height:1.6}
+#sw{position:fixed;inset:0;z-index:60;background:#0009;display:none;align-items:flex-end;justify-content:center}
+#sw.on{display:flex;animation:fi .25s}@keyframes fi{from{opacity:0}}
+#sheet{width:100%;max-width:560px;max-height:92%;overflow-y:auto;background:var(--panel);border-radius:26px 26px 0 0;padding:10px 18px calc(18px + env(safe-area-inset-bottom,0px));animation:su .35s cubic-bezier(.2,1,.3,1)}
+@keyframes su{from{transform:translateY(100%)}}
+.grab{width:44px;height:5px;border-radius:9px;background:var(--line);margin:4px auto 12px}
+#sheet h2{margin:4px 0 6px;font-size:20px}
+label{display:block;font-size:12.5px;color:var(--sub);font-weight:600;margin:12px 0 0}
+input.f{width:100%;margin-top:5px;padding:13px 14px;border-radius:13px;border:1px solid var(--line);background:var(--bg);outline:0;font-size:15px}
+input.f:focus{border-color:var(--a1)}
+input.code{width:100%;margin-top:10px;font:800 32px ui-monospace,Menlo,monospace;letter-spacing:12px;text-align:center;padding:14px;border-radius:16px;border:2px solid var(--line);background:var(--soft);outline:0}
+input.code:focus{border-color:var(--a1)}
+.err{min-height:22px;margin-top:8px;color:var(--bad);font-size:14px;text-align:center}
+.srow{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;text-align:left;background:var(--soft);padding:13px 14px;border-radius:14px;margin-top:8px;font-size:15px}
+.srow small{display:block;color:var(--sub);font-size:12.5px;margin-top:2px}
+.spin{width:34px;height:34px;border-radius:50%;border:4px solid var(--line);border-top-color:var(--a1);margin:8px auto;animation:spin .9s linear infinite}
+.dl{background:linear-gradient(135deg,var(--a1),var(--a2));color:#fff;border-radius:11px;padding:8px 13px;font-weight:700;font-size:13px;flex:none}
+.tag.er{color:var(--bad)}
+@media (prefers-reduced-motion: reduce){*{animation-duration:.01s !important;animation-delay:0s !important;transition-duration:.01s !important}}
+</style>
+</head>
+<body>
+
+<div id="splash">
+  <svg class="sl" viewBox="0 0 100 100" fill="none">
+    <defs><linearGradient id="ag" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#f59e0b"/><stop offset="1" stop-color="#f43f5e"/></linearGradient></defs>
+    <rect class="bgr" width="100" height="100" rx="24" fill="url(#ag)"/>
+    <g stroke="#fff" stroke-width="7" stroke-linecap="round" fill="none">
+      <path class="w w1" d="M24 44 A38 38 0 0 1 76 44"/><path class="w w2" d="M33 54 A25 25 0 0 1 67 54"/><path class="w w3" d="M42 64 A12 12 0 0 1 58 64"/></g>
+    <circle class="dt" cx="50" cy="75" r="5" fill="#fff"/>
+  </svg>
+  <div class="sn">AirLink</div>
+  <div class="st">SEND · RECEIVE · NO CLOUD</div>
+  <div class="by">by Roohu</div>
+  <div class="sb"><i></i></div>
+</div>
+
+<div class="app">
+  <div class="glow g1"></div><div class="glow g2"></div>
+  <header>
+    <svg viewBox="0 0 100 100" fill="none"><rect width="100" height="100" rx="24" fill="url(#ag)"/><g stroke="#fff" stroke-width="7" stroke-linecap="round" fill="none"><path d="M24 44 A38 38 0 0 1 76 44"/><path d="M33 54 A25 25 0 0 1 67 54"/><path d="M42 64 A12 12 0 0 1 58 64"/></g><circle cx="50" cy="75" r="5" fill="#fff"/></svg>
+    <b>AirLink</b>
+    <div class="pill" id="pill">Off</div>
+  </header>
+  <div id="view"></div>
+</div>
+<input type="file" id="demofile" multiple hidden>
+<div id="sw"><div id="sheet"></div></div>
+<div id="toast"></div>
+
+<script>
+var $=function(s){return document.querySelector(s)};
+function esc(s){return String(s==null?'':s).replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function sz(n){if(n==null||n<0)return'';var u=['B','KB','MB','GB','TB'],i=0;while(n>=1024&&i<4){n/=1024;i++}return(i?n.toFixed(n<10?1:0):n)+' '+u[i]}
+var SKEY='airlink_snd',snd=true;try{snd=localStorage.getItem(SKEY)!=='0'}catch(e){}
+
+/* ---------- sound ---------- */
+var AC=null,master=null;
+function ac(){if(!snd)return null;try{if(!AC){AC=new (window.AudioContext||window.webkitAudioContext)();master=AC.createGain();var dl=AC.createDelay(),fb=AC.createGain(),wet=AC.createGain();dl.delayTime.value=.19;fb.gain.value=.3;wet.gain.value=.3;master.gain.value=.6;master.connect(AC.destination);master.connect(dl);dl.connect(fb);fb.connect(dl);dl.connect(wet);wet.connect(AC.destination)}if(AC.state==='suspended')AC.resume();return AC}catch(e){return null}}
+function note(f,t,d,g,type){var c=ac();if(!c)return;try{var now=c.currentTime+t,o=c.createOscillator(),o2=c.createOscillator(),e=c.createGain(),g2=c.createGain(),lp=c.createBiquadFilter();o.type=type||'sine';o.frequency.value=f;o2.frequency.value=f*2.01;g2.gain.value=.1;lp.type='lowpass';lp.frequency.value=2600;e.gain.setValueAtTime(.0001,now);e.gain.exponentialRampToValueAtTime(g||.1,now+.02);e.gain.exponentialRampToValueAtTime(.0001,now+d);o.connect(e);o2.connect(g2);g2.connect(e);e.connect(lp);lp.connect(master);o.start(now);o2.start(now);o.stop(now+d+.05);o2.stop(now+d+.05)}catch(e){}}
+var SND={tap:function(){note(1046.5,0,.08,.05)},on:function(){note(523.25,0,.5,.1);note(659.25,.12,.5,.1);note(783.99,.24,.9,.1)},off:function(){note(659.25,0,.4,.08);note(440,.12,.6,.08)},ok:function(){note(659.25,0,.55,.1);note(987.77,.11,.9,.1)},err:function(){note(220,0,.35,.1,'triangle');note(196,.12,.45,.08,'triangle')},welcome:function(){ac();if(AC&&AC.state==='running'){[261.63,329.63,392,523.25].forEach(function(f,j){note(f,j*.18,1.7,.09)})}}};
+var tt;function toast(m,k){var t=$('#toast');t.textContent=m;t.classList.add('show');clearTimeout(tt);tt=setTimeout(function(){t.classList.remove('show')},2200);if(k&&SND[k])SND[k]()}
+function copyText(t){var ok=false;try{if(navigator.clipboard){navigator.clipboard.writeText(t);ok=true}}catch(e){}if(!ok){try{var ta=document.createElement('textarea');ta.value=t;ta.style.position='fixed';ta.style.opacity='0';document.body.appendChild(ta);ta.focus();ta.select();ok=document.execCommand('copy');document.body.removeChild(ta)}catch(e){}}return ok}
+
+/* ---------- plugin (or demo) ---------- */
+function plug(){var C=window.Capacitor;if(!C)return null;try{if(C.Plugins&&C.Plugins.LanShare)return C.Plugins.LanShare;if(C.registerPlugin)return C.registerPlugin('LanShare')}catch(e){}return null}
+var LS=plug(),DEMO=false;
+if(!LS||(window.Capacitor&&Capacitor.isNativePlatform&&!Capacitor.isNativePlatform())){DEMO=true;LS=makeDemo()}
+function makeDemo(){
+  var run=false,files=[],seq=0,cbs={};
+  function info(){return{running:run,port:8080,key:'482915',ips:['192.168.1.23','10.0.0.4'],device:'Demo phone'}}
+  function emit(n,d){(cbs[n]||[]).forEach(function(f){f(d)})}
+  $('#demofile').addEventListener('change',function(e){
+    var list=[].slice.call(e.target.files);e.target.value='';
+    if(DEMO._mode==='send'){
+      list.forEach(function(f){var done=0,iv=setInterval(function(){done=Math.min(f.size,done+f.size/8);emit('progress',{name:f.name,done:done,total:f.size,upload:false});if(done>=f.size){clearInterval(iv);emit('sent',{name:f.name})}},300)});
+      if(DEMO._pick)DEMO._pick({count:list.length});return;
+    }
+    list.forEach(function(f){files.push({id:String(++seq),name:f.name,size:f.size})});
+    if(DEMO._pick)DEMO._pick({files:files.slice()});
+  });
+  var d={
+    start:function(){run=true;return Promise.resolve(info())},stop:function(){run=false;return Promise.resolve(info())},status:function(){return Promise.resolve(info())},
+    pickFiles:function(){return new Promise(function(r){d._mode='pick';d._pick=r;$('#demofile').click()})},
+    scan:function(){return new Promise(function(r){setTimeout(function(){r({peers:[{name:'Aisha Phone',ip:'192.168.1.31',port:8080}]})},1200)})},
+    peerList:function(o){return new Promise(function(r,j){setTimeout(function(){if(!o.key||String(o.key).length!==6)j({message:'Wrong code'});else r({ok:true,device:'Aisha Phone',files:[{id:'1',name:'trip-photos.zip',size:84000000},{id:'2',name:'notes.pdf',size:2400000}]})},500)})},
+    peerDownload:function(o){var total=o.name==='notes.pdf'?2400000:84000000,done=0,iv=setInterval(function(){done=Math.min(total,done+total/10);emit('progress',{name:o.name,done:done,total:total,upload:true});if(done>=total){clearInterval(iv);emit('received',{name:o.name,size:total,where:'Downloads/AirLink'})}},350);return Promise.resolve({queued:true})},
+    pickAndSend:function(o){return new Promise(function(r){d._mode='send';d._pick=r;$('#demofile').click()})},
+    removeShared:function(o){files=files.filter(function(f){return f.id!==o.id});return Promise.resolve({files:files.slice()})},
+    clearShared:function(){files=[];return Promise.resolve({files:[]})},listShared:function(){return Promise.resolve({files:files.slice()})},
+    addListener:function(n,f){(cbs[n]=cbs[n]||[]).push(f);return Promise.resolve({remove:function(){}})},
+    simulate:function(){var name='holiday-video.mp4',total=48000000,done=0,iv=setInterval(function(){done=Math.min(total,done+total/12);emit('progress',{name:name,done:done,total:total,upload:true});if(done>=total){clearInterval(iv);emit('received',{name:name,size:total,where:'Downloads/AirLink'})}},350)}
+  };
+  DEMO=d;return d;
+}
+
+/* ---------- state ---------- */
+var S={running:false,port:0,key:'',ips:[],ip:0,files:[],xfers:[],wake:null,device:'',peer:null,peers:[]};
+var PT=null,pollT=0;
+function applyInfo(i){S.running=!!i.running;S.port=i.port||0;S.key=i.key||'';S.ips=i.ips||[];if(S.ip>=S.ips.length)S.ip=0;S.device=i.device||''}
+function url(code){var ip=S.ips[S.ip]||'phone-ip';return'http://'+ip+':'+S.port+'/'+(code?'?k='+S.key:'')}
+function wake(on){
+  try{
+    if(on&&navigator.wakeLock){navigator.wakeLock.request('screen').then(function(l){S.wake=l}).catch(function(){})}
+    else if(!on&&S.wake){S.wake.release();S.wake=null}
+  }catch(e){}
+}
+document.addEventListener('visibilitychange',function(){if(!document.hidden&&S.running&&!S.wake)wake(true)});
+
+/* ---------- views ---------- */
+var icoPower='<svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round"><path d="M12 3v8"/><path d="M6.3 6.6a8 8 0 1 0 11.4 0"/></svg>';
+function xferHtml(){
+  if(!S.xfers.length)return'<div class="empty">Nothing yet.<br>Files you send or get will show here.</div>';
+  return S.xfers.slice().reverse().slice(0,25).map(function(x){
+    var pc=x.total>0?Math.min(100,x.done/x.total*100):(x.state==='done'?100:0);
+    var st=x.state==='done'?'<span class="tag ok">✔ Done</span>':x.state==='err'?'<span class="tag er">Failed</span>':'<span class="tag">'+Math.round(pc)+'%</span>';
+    return'<div class="row"><div class="ic">'+(x.dir==='in'?'📥':'📤')+'</div><div class="nm"><b>'+esc(x.name)+'</b><small>'+(x.dir==='in'?'Received':'Sent')+' · '+sz(x.total>0?x.total:x.done)+(x.where&&x.state==='done'?' · '+esc(x.where):'')+'</small><div class="bar"><i style="width:'+pc+'%"></i></div></div>'+st+'</div>';
+  }).join('');
+}
+function filesHtml(){
+  if(!S.files.length)return'<div class="empty">No files chosen.<br>Tap the button to choose files for your computer.</div>';
+  return S.files.map(function(f){return'<div class="row"><div class="ic">📄</div><div class="nm"><b>'+esc(f.name)+'</b><small>'+sz(f.size)+'</small></div><button class="x" data-act="rm" data-id="'+esc(f.id)+'">✕</button></div>'}).join('');
+}
+function heroHtml(){
+  if(!S.running)return'<div class="card hero" id="hero"><div class="radar"><i></i><i></i><i></i><button class="pw" data-act="start" aria-label="Start">'+icoPower+'</button></div><h2>Share with your computer</h2><p>Send files to a PC or get files from it. Fast, over your Wi-Fi. No internet and no cloud.</p><button class="btn pri big" data-act="start">Start sharing</button></div>';
+  var ips=S.ips.length>1?'<div class="ips">'+S.ips.map(function(ip,i){return'<button class="'+(i===S.ip?'on':'')+'" data-act="ip" data-i="'+i+'">'+esc(ip)+'</button>'}).join('')+'</div>':'';
+  return'<div class="card hero on" id="hero"><div class="radar"><i></i><i></i><i></i><button class="pw" data-act="stop" aria-label="Stop">'+icoPower+'</button></div><h2>Sharing is ON</h2><p>On your computer, open this link in a browser:</p>'
+  +'<div class="lk"><small>Link</small><div class="u">'+esc(S.ips.length?url(false):'No Wi-Fi found')+'</div><small style="margin-top:8px">Code</small><div class="c">'+esc(S.key)+'</div>'+ips+'</div>'
+  +'<div class="btns"><button class="btn" data-act="copyLink">📋 Copy link</button><button class="btn pri" data-act="copyFull">📋 Link with code</button></div><button class="btn big" data-act="stop" style="background:#ffffff1c">Stop sharing</button></div>';
+}
+function render(){
+  $('#pill').textContent=S.running?'Sharing':'Off';$('#pill').classList.toggle('on',S.running);
+  var h='';
+  if(DEMO)h+='<div class="banner">Preview mode. The real Wi-Fi sharing works inside the AirLink Android app. <button class="btn" style="padding:6px 12px;margin-top:6px" data-act="sim">Show a sample transfer</button></div>';
+  h+=heroHtml();
+  h+=peerHtml();
+  h+='<div class="card"><h3>Send to computer</h3><div id="files">'+filesHtml()+'</div><div class="btns"><button class="btn pri" data-act="pick">＋ Choose files</button>'+(S.files.length?'<button class="btn dng" data-act="clear">Clear</button>':'')+'</div><div class="note">The computer can download these files when sharing is ON.</div></div>';
+  h+='<div class="card"><h3>Transfers</h3><div id="xf">'+xferHtml()+'</div></div>';
+  h+='<div class="card"><h3>How to connect</h3><ol class="steps"><li>Put the phone and the computer on the <b>same Wi-Fi</b>. No Wi-Fi? Turn on the phone <b>hotspot</b> and connect the computer to it.</li><li>Tap <b>Start sharing</b>.</li><li>On the computer, open the link and write the 6 numbers.</li></ol><div class="note">Received files are saved in <b>Downloads/AirLink</b>. Keep this app open while big files move.</div></div>';
+  h+=aboutHtml();
+  var v=$('#view'),top=v.scrollTop;v.innerHTML=h;v.scrollTop=top;startNeural();
+}
+function peerHtml(){
+  if(!S.peer)return'<div class="card"><h3>Phone to phone</h3><div class="note" style="margin:0 0 4px">Both phones need AirLink and the same Wi-Fi. On the other phone, tap <b>Start sharing</b>. Then find it here.</div><div class="btns"><button class="btn pri" data-act="scan">🔍 Find nearby phones</button><button class="btn" data-act="manual">⌨ Enter link</button></div></div>';
+  var p=S.peer;
+  return'<div class="card"><h3>Connected to '+esc(p.device)+'</h3><div class="note" style="margin:0 0 6px" id="pstat">'+esc(p.host)+':'+p.port+(p.lost?' · <b style="color:var(--bad)">Connection lost</b>':'')+'</div><div id="pfiles">'+peerFiles()+'</div><div class="btns"><button class="btn pri" data-act="pall">⬇ Get all</button><button class="btn" data-act="psend">⬆ Send my files</button></div><div class="btns"><button class="btn" data-act="prefresh">↻ Refresh</button><button class="btn dng" data-act="pdisc">Disconnect</button></div></div>';
+}
+function peerFiles(){
+  var p=S.peer;if(!p)return'';
+  if(!p.files.length)return'<div class="empty">The other phone has not chosen files yet.<br>You can still send your files to it.</div>';
+  return p.files.map(function(f,i){return'<div class="row"><div class="ic">📄</div><div class="nm"><b>'+esc(f.name)+'</b><small>'+sz(f.size)+'</small></div><button class="dl" data-act="pget" data-i="'+i+'">Get</button></div>'}).join('');
+}
+function aboutHtml(){
+  var mail='roohukhan01@gmail.com';
+  return'<div class="abt"><div class="hd"><div><div class="anm">About AirLink</div><div class="arl">Version 1.1</div></div></div>'
+  +'<div class="ar"><span>Developer</span><b>Roohu</b></div>'
+  +'<div class="ar"><span>Support</span><b>'+mail+'</b></div>'
+  +'<div class="ar"><span>Privacy</span><b>Files go only over your local Wi-Fi</b></div>'
+  +'<div class="btns" style="margin-top:12px"><a class="btn pri" href="mailto:'+mail+'?subject=AirLink%20support">✉ Contact support</a><button class="btn" data-act="copyMail">📋 Copy email</button></div>'
+  +'<div class="aft">© 2026 Roohu. All rights reserved.</div></div>'
+  +'<div class="btns" style="margin-top:0"><button class="btn" data-act="toggleSnd">'+(snd?'🔊 Sound on':'🔇 Sound off')+'</button></div>';
+}
+var nRAF=0;
+function startNeural(){
+  cancelAnimationFrame(nRAF);var c=$('#neural');if(!c)return;
+  var p=c.parentNode,w=c.width=p.clientWidth,hh=c.height=p.clientHeight,x=c.getContext('2d'),N=[],i;if(!x)return;
+  for(i=0;i<24;i++)N.push({x:Math.random()*w,y:Math.random()*hh,vx:(Math.random()-.5)*.45,vy:(Math.random()-.5)*.45});
+  function f(){
+    if(!document.body.contains(c))return;x.clearRect(0,0,w,hh);
+    N.forEach(function(a){a.x+=a.vx;a.y+=a.vy;if(a.x<0||a.x>w)a.vx*=-1;if(a.y<0||a.y>hh)a.vy*=-1});
+    for(var a=0;a<N.length;a++){for(var b=a+1;b<N.length;b++){var dx=N[a].x-N[b].x,dy=N[a].y-N[b].y,d=Math.sqrt(dx*dx+dy*dy);if(d<90){x.strokeStyle='rgba(244,63,94,'+(1-d/90)*.6+')';x.lineWidth=1;x.beginPath();x.moveTo(N[a].x,N[a].y);x.lineTo(N[b].x,N[b].y);x.stroke()}}
+      x.fillStyle='rgba(245,158,11,.8)';x.beginPath();x.arc(N[a].x,N[a].y,2,0,6.3);x.fill()}
+    nRAF=requestAnimationFrame(f);
+  }
+  f();
+}
+function refreshX(){var e=$('#xf');if(e)e.innerHTML=xferHtml()}
+
+/* ---------- transfer events ---------- */
+function onProgress(d){
+  var dir=d.upload?'in':'out',x=null;
+  for(var i=S.xfers.length-1;i>=0;i--){if(S.xfers[i].name===d.name&&S.xfers[i].dir===dir&&S.xfers[i].state!=='done'){x=S.xfers[i];break}}
+  if(!x){x={name:d.name,dir:dir,done:0,total:d.total,state:'run'};S.xfers.push(x)}
+  x.done=d.done;x.total=d.total;
+  if(dir==='out'&&d.total>0&&d.done>=d.total){x.state='done';SND.ok()}
+  refreshX();
+}
+function onReceived(d){
+  var x=null;
+  for(var i=S.xfers.length-1;i>=0;i--){if(S.xfers[i].name===d.name&&S.xfers[i].dir==='in'&&S.xfers[i].state!=='done'){x=S.xfers[i];break}}
+  if(!x){x={name:d.name,dir:'in',done:d.size,total:d.size};S.xfers.push(x)}
+  x.state='done';x.done=x.total=d.size;x.where=d.where;refreshX();toast('Got '+d.name+' ✓','ok');
+}
+function onSent(d){
+  var x=null;
+  for(var i=S.xfers.length-1;i>=0;i--){if(S.xfers[i].name===d.name&&S.xfers[i].dir==='out'&&S.xfers[i].state!=='done'){x=S.xfers[i];break}}
+  if(!x){x={name:d.name,dir:'out',done:1,total:1};S.xfers.push(x)}
+  x.state='done';x.done=x.total=Math.max(x.total,1);refreshX();toast('Sent '+d.name+' ✓','ok');
+}
+function onPeerError(d){
+  for(var i=S.xfers.length-1;i>=0;i--){if(S.xfers[i].name===d.name&&S.xfers[i].state!=='done'){S.xfers[i].state='err';break}}
+  refreshX();toast((d.name?d.name+': ':'')+(d.message||'Transfer failed'),'err');
+}
+try{LS.addListener('progress',onProgress);LS.addListener('received',onReceived);LS.addListener('sent',onSent);LS.addListener('peerError',onPeerError)}catch(e){}
+
+/* ---------- actions ---------- */
+function openSheet(html){$('#sheet').innerHTML='<div class="grab"></div>'+html;$('#sw').classList.add('on')}
+function closeSheet(){$('#sw').classList.remove('on')}
+function parseLink(s){
+  s=(s||'').trim();var m=/k=(\d{6})/.exec(s),key=m?m[1]:'';
+  s=s.replace(/^https?:\/\//i,'').replace(/[\/?#].*$/,'');
+  var host=s,port=8080,c=s.lastIndexOf(':');
+  if(c>0){host=s.slice(0,c);port=parseInt(s.slice(c+1),10)||8080}
+  return{host:host,port:port,key:key};
+}
+function peersSheet(){
+  if(!S.peers.length){openSheet('<h2>No phone found</h2><div class="note">Check that both phones use the same Wi-Fi, and that the other phone shows <b>Sharing is ON</b>. You can also write its link by hand.</div><div class="btns"><button class="btn pri" data-act="scan">Search again</button><button class="btn" data-act="manual">Enter link</button></div>');return}
+  openSheet('<h2>Phones nearby</h2>'+S.peers.map(function(p,i){return'<button class="srow" data-act="pickPeer" data-i="'+i+'"><div><b>'+esc(p.name)+'</b><small>'+esc(p.ip)+':'+p.port+'</small></div><span>›</span></button>'}).join('')+'<div class="btns"><button class="btn" data-act="scan">Search again</button><button class="btn" data-act="closeSheet">Close</button></div>');
+}
+function codeSheet(t){
+  PT=t;openSheet('<h2>Connect to '+esc(t.name||t.host)+'</h2><div class="note">Write the 6 numbers you see on that phone.</div><input id="pc_code" class="code" inputmode="numeric" maxlength="6" placeholder="······" autocomplete="off"><div class="err" id="pc_msg"></div><div class="btns"><button class="btn" data-act="closeSheet">Cancel</button></div>');
+  setTimeout(function(){var i=$('#pc_code');if(i&&i.focus)i.focus()},120);
+}
+function connectPeer(t,key){
+  var m=$('#pc_msg');if(m)m.textContent='Connecting…';
+  LS.peerList({host:t.host,port:t.port,key:key}).then(function(r){
+    S.peer={host:t.host,port:t.port,key:key,device:r.device||t.name||'Phone',files:r.files||[],lost:false};
+    closeSheet();render();wake(true);startPoll();toast('Connected to '+S.peer.device+' ✓','ok');
+  }).catch(function(e){var m2=$('#pc_msg');if(m2)m2.textContent=(e&&e.message)||String(e);SND.err();var c=$('#pc_code');if(c)c.value=''});
+}
+function startPoll(){
+  clearInterval(pollT);
+  pollT=setInterval(function(){
+    var p=S.peer;if(!p){clearInterval(pollT);return}
+    LS.peerList({host:p.host,port:p.port,key:p.key}).then(function(r){
+      p.lost=false;p.files=r.files||[];var f=$('#pfiles');if(f)f.innerHTML=peerFiles();var st=$('#pstat');if(st)st.textContent=p.host+':'+p.port;
+    }).catch(function(){
+      p.lost=true;var st=$('#pstat');if(st)st.innerHTML=esc(p.host)+':'+p.port+' · <b style="color:var(--bad)">Connection lost</b>';
+    });
+  },4000);
+}
+function peerArgs(extra){var p=S.peer,o={host:p.host,port:p.port,key:p.key};for(var k in extra)o[k]=extra[k];return o}
+var A={
+  start:function(){LS.start({port:8080}).then(function(i){applyInfo(i);S.xfers=S.xfers.filter(function(x){return x.state==='done'});render();wake(true);SND.on()}).catch(function(e){toast('Could not start: '+((e&&e.message)||e),'err')})},
+  stop:function(){LS.stop().then(function(i){applyInfo(i);render();wake(false);SND.off()}).catch(function(){})},
+  ip:function(b){S.ip=+b.dataset.i;render()},
+  copyLink:function(){toast(copyText(url(false))?'Link copied ✓':'Copy failed','ok')},
+  copyFull:function(){toast(copyText(url(true))?'Link with code copied ✓':'Copy failed','ok')},
+  pick:function(){LS.pickFiles().then(function(r){S.files=r.files||[];render()}).catch(function(){toast('Could not open the file list','err')})},
+  rm:function(b){LS.removeShared({id:b.dataset.id}).then(function(r){S.files=r.files||[];render()})},
+  clear:function(){LS.clearShared().then(function(){S.files=[];render()})},
+  sim:function(){if(DEMO&&DEMO.simulate){if(!S.running)A.start();DEMO.simulate()}},
+  scan:function(){
+    openSheet('<h2>Looking for phones…</h2><div class="spin"></div><div class="note" style="text-align:center">On the other phone, open AirLink and tap <b>Start sharing</b>.</div>');
+    LS.scan().then(function(r){S.peers=r.peers||[];peersSheet()}).catch(function(e){openSheet('<h2>Could not search</h2><div class="note">'+esc((e&&e.message)||e)+'</div><div class="btns"><button class="btn pri" data-act="manual">Enter link</button><button class="btn" data-act="closeSheet">Close</button></div>')});
+  },
+  pickPeer:function(b){var p=S.peers[+b.dataset.i];if(p)codeSheet({host:p.ip,port:p.port,name:p.name})},
+  manual:function(){openSheet('<h2>Enter link</h2><div class="note">Write the link or address that the other phone shows.</div><label>Link or address<input class="f" id="m_link" placeholder="192.168.1.5:8080" autocapitalize="off" autocorrect="off"></label><label>Code (6 numbers)<input class="f" id="m_code" inputmode="numeric" maxlength="6" placeholder="······"></label><div class="err" id="pc_msg"></div><div class="btns"><button class="btn pri" data-act="manualGo">Connect</button><button class="btn" data-act="closeSheet">Cancel</button></div>')},
+  manualGo:function(){
+    var t=parseLink($('#m_link').value),code=($('#m_code').value||'').replace(/\D/g,'')||t.key;
+    if(!t.host){$('#pc_msg').textContent='Write the link or address';SND.err();return}
+    if(code.length!==6){$('#pc_msg').textContent='Write the 6 numbers';SND.err();return}
+    t.name=t.host;connectPeer(t,code);
+  },
+  closeSheet:closeSheet,
+  pget:function(b){var f=S.peer&&S.peer.files[+b.dataset.i];if(!f)return;LS.peerDownload(peerArgs({id:f.id,name:f.name})).then(function(){toast('Getting '+f.name+'…')}).catch(function(e){toast((e&&e.message)||'Could not start','err')})},
+  pall:function(){var p=S.peer;if(!p||!p.files.length){toast('No files to get','err');return}p.files.forEach(function(f){LS.peerDownload(peerArgs({id:f.id,name:f.name}))});toast('Getting '+p.files.length+' file'+(p.files.length===1?'':'s')+'…')},
+  psend:function(){LS.pickAndSend(peerArgs({})).then(function(r){if(r&&r.count)toast('Sending '+r.count+' file'+(r.count===1?'':'s')+'…')}).catch(function(e){toast((e&&e.message)||'Could not send','err')})},
+  prefresh:function(){var p=S.peer;if(!p)return;LS.peerList({host:p.host,port:p.port,key:p.key}).then(function(r){p.lost=false;p.files=r.files||[];render();toast('Updated')}).catch(function(e){p.lost=true;render();toast((e&&e.message)||'Connection lost','err')})},
+  pdisc:function(){clearInterval(pollT);S.peer=null;if(!S.running)wake(false);render();SND.off()},
+  copyMail:function(){toast(copyText('roohukhan01@gmail.com')?'Email copied ✓':'Copy failed','ok')},
+  toggleSnd:function(){snd=!snd;try{localStorage.setItem(SKEY,snd?'1':'0')}catch(e){}render();if(snd)SND.ok()}
+};
+document.addEventListener('input',function(e){
+  if(e.target.id==='pc_code'){var v=e.target.value.replace(/\D/g,'');e.target.value=v;if(v.length===6&&PT)connectPeer(PT,v)}
+});
+document.addEventListener('click',function(e){
+  if(e.target.id==='sw'){closeSheet();return}
+  var b=e.target.closest('[data-act]');
+  if(e.target.closest('button,a.btn')&&!(b&&(b.dataset.act==='start'||b.dataset.act==='stop')))SND.tap();
+  if(b&&A[b.dataset.act])A[b.dataset.act](b);
+});
+
+LS.status().then(function(i){applyInfo(i);return LS.listShared&&LS.listShared()}).then(function(r){if(r&&r.files)S.files=r.files;render();if(S.running)wake(true)}).catch(function(){render()});
+render();
+setTimeout(function(){try{SND.welcome()}catch(e){}},900);
+setTimeout(function(){var s=$('#splash');s.classList.add('hide');setTimeout(function(){s.style.display='none'},700)},2200);
+</script>
+</body>
+</html>

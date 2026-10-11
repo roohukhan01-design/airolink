@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AirLink</title>
+<style>
+:root{--bg:#0d0a14;--panel:#17121f;--ink:#f4f0ff;--sub:#a79bc0;--line:#2a2238;--a1:#f59e0b;--a2:#f43f5e;--ok:#4ade80;--bad:#fb7185;--soft:#201929}
+@media (prefers-color-scheme: light){:root{--bg:#faf6ff;--panel:#ffffff;--ink:#1c1230;--sub:#6e6288;--line:#e5dcf3;--soft:#f3ecfb;--ok:#16a34a;--bad:#dc2626}}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%}
+body{background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;overflow-x:hidden}
+.glow{position:fixed;border-radius:50%;filter:blur(90px);opacity:.25;pointer-events:none;z-index:0}
+.g1{width:340px;height:340px;background:var(--a1);top:-120px;left:-100px}
+.g2{width:300px;height:300px;background:var(--a2);top:80px;right:-120px}
+.wrap{position:relative;z-index:1;max-width:980px;margin:0 auto;padding:22px 16px 60px}
+header{display:flex;align-items:center;gap:12px;margin-bottom:18px}
+.logo{width:46px;height:46px;border-radius:14px;background:linear-gradient(135deg,var(--a1),var(--a2));display:grid;place-items:center;box-shadow:0 10px 30px #f43f5e55}
+.logo svg{width:28px;height:28px}
+h1{margin:0;font-size:26px;letter-spacing:.5px;background:linear-gradient(90deg,var(--a1),var(--a2));-webkit-background-clip:text;background-clip:text;color:transparent}
+.dev{font-size:13px;color:var(--sub)}
+.pill{margin-left:auto;font-size:12px;padding:6px 12px;border-radius:99px;background:var(--soft);color:var(--sub)}
+.pill.on{color:var(--ok)}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:20px;padding:20px;margin-bottom:16px}
+.card h2{margin:0 0 4px;font-size:18px}.card p{margin:0 0 14px;color:var(--sub);font-size:14px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media (max-width:760px){.grid{grid-template-columns:1fr}}
+#login{max-width:420px;margin:60px auto;text-align:center}
+#login input{width:100%;font-size:34px;letter-spacing:12px;text-align:center;padding:14px;border-radius:16px;border:2px solid var(--line);background:var(--soft);color:var(--ink);outline:0}
+#login input:focus{border-color:var(--a1)}
+#msg{min-height:22px;margin-top:12px;color:var(--bad);font-size:14px}
+.btn{border:0;cursor:pointer;font:inherit;font-weight:700;padding:12px 18px;border-radius:13px;background:var(--soft);color:var(--ink);transition:transform .15s}
+.btn:active{transform:scale(.96)}
+.btn.pri{background:linear-gradient(135deg,var(--a1),var(--a2));color:#fff;box-shadow:0 8px 22px #f43f5e44}
+.drop{border:2px dashed var(--line);border-radius:18px;padding:34px 16px;text-align:center;transition:all .2s;background:var(--soft)}
+.drop.over{border-color:var(--a1);background:#f59e0b18;transform:scale(1.01)}
+.drop b{display:block;font-size:17px;margin-bottom:6px}.drop span{color:var(--sub);font-size:14px;display:block;margin-bottom:14px}
+.row{display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:0}
+.ic{width:38px;height:38px;border-radius:11px;background:var(--soft);display:grid;place-items:center;flex:none;font-size:18px}
+.nm{flex:1;min-width:0}.nm b{display:block;font-size:14.5px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.nm small{color:var(--sub);font-size:12.5px}
+.bar{height:6px;border-radius:9px;background:var(--line);margin-top:6px;overflow:hidden}.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,var(--a1),var(--a2));transition:width .2s}
+.st{font-size:13px;font-weight:700;white-space:nowrap}.st.ok{color:var(--ok)}.st.er{color:var(--bad)}
+a.dl{text-decoration:none;font-size:13.5px;padding:9px 14px}
+.empty{color:var(--sub);text-align:center;padding:22px 8px;font-size:14px}
+.foot{text-align:center;color:var(--sub);font-size:12.5px;margin-top:22px;line-height:1.6}
+#main{display:none}
+</style>
+</head>
+<body>
+<div class="glow g1"></div><div class="glow g2"></div>
+<div class="wrap">
+  <header>
+    <div class="logo"><svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M2 9a15 15 0 0 1 20 0"/><path d="M5.5 12.8a10 10 0 0 1 13 0"/><path d="M9 16.4a5 5 0 0 1 6 0"/><circle cx="12" cy="19.6" r=".6" fill="#fff"/></svg></div>
+    <div><h1>AirLink</h1><div class="dev" id="dev">File sharing on your Wi-Fi</div></div>
+    <div class="pill" id="pill">Not connected</div>
+  </header>
+
+  <div class="card" id="login">
+    <h2>Write the code from your phone</h2>
+    <p>You can see the 6 numbers on the AirLink app.</p>
+    <input id="code" inputmode="numeric" maxlength="6" placeholder="······" autocomplete="off">
+    <div id="msg"></div>
+  </div>
+
+  <div id="main">
+    <div class="grid">
+      <div class="card">
+        <h2>📤 Send to phone</h2>
+        <p>Files go straight to the phone. Nothing goes to the internet.</p>
+        <div class="drop" id="drop"><b>Drop files here</b><span>or choose them from your computer</span><button class="btn pri" id="pick">Choose files</button><input type="file" id="file" multiple hidden></div>
+        <div id="q"></div>
+      </div>
+      <div class="card">
+        <h2>📥 From phone</h2>
+        <p>Files that you chose on the phone show here.</p>
+        <div style="display:flex;gap:8px;margin-bottom:6px"><button class="btn" id="all">Download all</button><button class="btn" id="ref">Refresh</button></div>
+        <div id="list"><div class="empty">Loading…</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="foot">Your files stay on your Wi-Fi network.<br>Keep the AirLink app open on the phone while you send big files.</div>
+</div>
+
+<script>
+var KEY='',$=function(s){return document.querySelector(s)},queue=[],busy=false,poll=0;
+function sz(n){if(n<0||n==null)return'';var u=['B','KB','MB','GB','TB'],i=0;while(n>=1024&&i<4){n/=1024;i++}return(i?n.toFixed(n<10?1:0):n)+' '+u[i]}
+function api(p){return fetch(p,{headers:{'X-Key':KEY}}).then(function(r){return r.json().then(function(j){j.status=r.status;return j})})}
+function connect(c){
+  KEY=c;$('#msg').textContent='';
+  api('/api/ping').then(function(j){
+    if(j.ok){
+      try{sessionStorage.setItem('airlink_k',c)}catch(e){}
+      $('#login').style.display='none';$('#main').style.display='block';
+      $('#dev').textContent=j.device||'Phone';$('#pill').textContent='Connected';$('#pill').classList.add('on');
+      refresh();clearInterval(poll);poll=setInterval(refresh,3000);
+    }else{$('#msg').textContent=j.error||'Wrong code';$('#code').value=''}
+  }).catch(function(){$('#msg').textContent='Cannot reach the phone. Check the Wi-Fi.'});
+}
+$('#code').addEventListener('input',function(e){var v=e.target.value.replace(/\D/g,'');e.target.value=v;if(v.length===6)connect(v)});
+function refresh(){
+  api('/api/list').then(function(j){
+    if(!j.ok){if(j.status===403||j.status===429){$('#pill').textContent='Locked';$('#pill').classList.remove('on')}return}
+    $('#pill').textContent='Connected';$('#pill').classList.add('on');
+    var L=$('#list');L.innerHTML='';
+    if(!j.files.length){L.innerHTML='<div class="empty">No files yet.<br>On the phone, tap “Choose files”.</div>';return}
+    j.files.forEach(function(f){
+      var r=document.createElement('div');r.className='row';
+      var ic=document.createElement('div');ic.className='ic';ic.textContent='📄';
+      var nm=document.createElement('div');nm.className='nm';var b=document.createElement('b');b.textContent=f.name;var s=document.createElement('small');s.textContent=sz(f.size);nm.appendChild(b);nm.appendChild(s);
+      var a=document.createElement('a');a.className='btn pri dl';a.textContent='Download';a.href='/f/'+encodeURIComponent(f.id)+'?k='+encodeURIComponent(KEY);a.setAttribute('download',f.name);
+      r.appendChild(ic);r.appendChild(nm);r.appendChild(a);L.appendChild(r);
+    });
+  }).catch(function(){$('#pill').textContent='Lost connection';$('#pill').classList.remove('on')});
+}
+$('#ref').onclick=refresh;
+$('#all').onclick=function(){var l=document.querySelectorAll('#list a.dl'),i=0;(function n(){if(i<l.length){l[i++].click();setTimeout(n,900)}})()};
+/* upload */
+function row(it){
+  var r=document.createElement('div');r.className='row';
+  r.innerHTML='<div class="ic">📄</div><div class="nm"><b></b><small></small><div class="bar"><i></i></div></div><div class="st">Waiting</div>';
+  r.querySelector('b').textContent=it.f.name;r.querySelector('small').textContent=sz(it.f.size);it.el=r;$('#q').appendChild(r);
+}
+function upd(it,txt,cls){var s=it.el.querySelector('.st');s.textContent=txt;s.className='st '+(cls||'');it.el.querySelector('.bar i').style.width=(it.f.size?Math.min(100,it.done/it.f.size*100):100)+'%'}
+function add(files){[].forEach.call(files,function(f){var it={f:f,done:0,state:'wait'};queue.push(it);row(it)});next()}
+function next(){
+  if(busy)return;var it=null;for(var i=0;i<queue.length;i++)if(queue[i].state==='wait'){it=queue[i];break}
+  if(!it)return;busy=true;it.state='up';
+  var x=new XMLHttpRequest(),t0=Date.now();
+  x.open('POST','/upload');x.setRequestHeader('X-Key',KEY);x.setRequestHeader('X-Filename',encodeURIComponent(it.f.name));
+  x.upload.onprogress=function(e){it.done=e.loaded;var sp=e.loaded/Math.max(.2,(Date.now()-t0)/1000);upd(it,sz(sp)+'/s')};
+  x.onload=function(){it.state=x.status===200?'done':'err';it.done=it.f.size;upd(it,x.status===200?'✔ Sent':'Failed',x.status===200?'ok':'er');busy=false;next()};
+  x.onerror=function(){it.state='err';upd(it,'Failed','er');busy=false;next()};
+  x.send(it.f);
+}
+$('#pick').onclick=function(){$('#file').click()};
+$('#file').onchange=function(e){add(e.target.files);e.target.value=''};
+var dr=$('#drop');
+['dragenter','dragover'].forEach(function(n){dr.addEventListener(n,function(e){e.preventDefault();dr.classList.add('over')})});
+['dragleave','drop'].forEach(function(n){dr.addEventListener(n,function(e){e.preventDefault();dr.classList.remove('over')})});
+dr.addEventListener('drop',function(e){if(e.dataTransfer&&e.dataTransfer.files.length)add(e.dataTransfer.files)});
+['dragover','drop'].forEach(function(n){window.addEventListener(n,function(e){e.preventDefault()})});
+/* start: code in link, or saved, or ask */
+(function(){
+  var m=/[?&]k=(\d{6})/.exec(location.search),c=m?m[1]:null;
+  if(!c){try{c=sessionStorage.getItem('airlink_k')}catch(e){}}
+  if(c)connect(c);else $('#code').focus();
+})();
+</script>
+</body>
+</html>
